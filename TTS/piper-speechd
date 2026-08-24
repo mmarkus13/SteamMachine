@@ -1,0 +1,56 @@
+#!/bin/bash
+
+MODEL_DIR="/home/deck/.var/app/com.mikeasoft.pied/data/pied/models"
+OVERRIDE_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/kwinctl/rate"
+
+VOICE="$1"
+SD_RATE="${2:-0}"
+
+# If kwinctl has a global override, use it.
+if [[ -f "$OVERRIDE_FILE" ]]; then
+    OVERRIDE_RATE="$(<"$OVERRIDE_FILE")"
+
+    if [[ "$OVERRIDE_RATE" =~ ^-?[0-9]+$ ]] &&
+       (( OVERRIDE_RATE >= -100 && OVERRIDE_RATE <= 100 )); then
+        SD_RATE="$OVERRIDE_RATE"
+    fi
+fi
+
+case "$VOICE" in
+    en_US-amy-low)
+        SAMPLE_RATE=16000
+        ;;
+    *)
+        SAMPLE_RATE=22050
+        ;;
+esac
+
+# Speech Dispatcher rate: -100 .. +100
+#
+#  -100 = slower
+#     0 = normal
+#   +100 = faster
+#
+# Convert to Piper length_scale.
+# Smaller length_scale = faster speech.
+
+LENGTH_SCALE=$(awk -v rate="$SD_RATE" 'BEGIN {
+    scale = 1.0 - (rate / 200.0)
+
+    if (scale < 0.5)
+        scale = 0.5
+
+    if (scale > 1.5)
+        scale = 1.5
+
+    printf "%.3f", scale
+}')
+
+exec /home/deck/.var/app/com.mikeasoft.pied/data/pied/piper/piper \
+    --model "$MODEL_DIR/$VOICE.onnx" \
+    --length_scale "$LENGTH_SCALE" \
+    --output_raw |
+    paplay --raw \
+        --rate="$SAMPLE_RATE" \
+        --channels=1 \
+        --format=s16le

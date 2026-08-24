@@ -1,0 +1,161 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/kwinctl"
+OVERRIDE_FILE="$STATE_DIR/rate"
+
+MIN_RATE=-100
+MAX_RATE=100
+DEFAULT_RATE=0
+STEP=10
+
+die() {
+    printf 'kwinctl: %s\n' "$*" >&2
+    exit 1
+}
+
+get_override() {
+    if [[ -f "$OVERRIDE_FILE" ]]; then
+        local rate
+        rate="$(<"$OVERRIDE_FILE")"
+
+        if [[ "$rate" =~ ^-?[0-9]+$ ]] &&
+           (( rate >= MIN_RATE && rate <= MAX_RATE )); then
+            printf '%s\n' "$rate"
+            return
+        fi
+    fi
+
+    return 1
+}
+
+set_override() {
+    local rate="$1"
+
+    (( rate >= MIN_RATE && rate <= MAX_RATE )) ||
+        die "rate out of range: $rate"
+
+    mkdir -p "$STATE_DIR"
+    printf '%s\n' "$rate" > "$OVERRIDE_FILE"
+
+    printf 'TTS override: %+d\n' "$rate"
+}
+
+reset_override() {
+    rm -f "$OVERRIDE_FILE"
+    printf 'TTS override: off (using application/default rate)\n'
+}
+
+slower() {
+    local rate
+
+    if rate="$(get_override 2>/dev/null)"; then
+        :
+    else
+        rate="$DEFAULT_RATE"
+    fi
+
+    rate=$((rate - STEP))
+    (( rate < MIN_RATE )) && rate=$MIN_RATE
+
+    set_override "$rate"
+}
+
+faster() {
+    local rate
+
+    if rate="$(get_override 2>/dev/null)"; then
+        :
+    else
+        rate="$DEFAULT_RATE"
+    fi
+
+    rate=$((rate + STEP))
+    (( rate > MAX_RATE )) && rate=$MAX_RATE
+
+    set_override "$rate"
+}
+
+show() {
+    local rate
+
+    if rate="$(get_override 2>/dev/null)"; then
+        printf 'TTS override: %+d\n' "$rate"
+    else
+        printf 'TTS override: off\n'
+    fi
+}
+
+usage() {
+    cat <<'EOF'
+Usage: kwinctl <command>
+
+Commands:
+  min       Set TTS to minimum speed (-100)
+  max       Set TTS to maximum speed (+100)
+  reset     Disable override; use application/default rate
+
+  slower    Decrease TTS speed by 10
+  faster    Increase TTS speed by 10
+
+Aliases:
+  s, S      slower
+  f, F      faster
+  r, R      reset
+
+Info:
+  speed     Show current override
+
+Examples:
+  kwinctl min
+  kwinctl max
+  kwinctl s
+  kwinctl f
+  kwinctl r
+  kwinctl speed
+EOF
+}
+
+main() {
+    [[ $# -eq 1 ]] ||
+        die "expected one argument; try 'kwinctl --help'"
+
+    case "$1" in
+        min)
+            set_override "$MIN_RATE"
+            ;;
+
+        max)
+            set_override "$MAX_RATE"
+            ;;
+
+        slower|s|S)
+            slower
+            ;;
+
+        faster|f|F)
+            faster
+            ;;
+
+        reset|r|R)
+            reset_override
+            ;;
+
+        speed)
+            show
+            ;;
+
+        --help|-h|help)
+            usage
+            ;;
+
+        *)
+            usage >&2
+            die "unknown command: $1"
+            ;;
+    esac
+}
+
+main "$@"
+
