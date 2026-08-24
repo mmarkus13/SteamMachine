@@ -21,15 +21,15 @@ You do not need to install Piper separately from the normal package repositories
 
 Pied is available as a Flatpak.
 
-Open **Discover** on SteamOS and search for:
 
-**Pied**
-
-Install it.
+<del>Open **Discover** on SteamOS and search for: \
+**Pied** \
+Install it.</del>
 
 Alternatively, if Flatpak is available from the terminal:
 
 ```bash
+curl -LO https://github.com/Elleo/pied/releases/download/v0.3.1/com.mikeasoft.pied.flatpak
 flatpak install flathub com.mikeasoft.pied
 ```
 
