@@ -2,9 +2,40 @@ Steps:
 1# Open your Steam Library.
 2# Right-click the game/application and select Properties.
 3# Under the General tab, find the Launch Options text box.
-4# Paste the following command:
-
-python3 /usr/local/bin/play_startup_song.py "/usr/local/share/midi/slim_shady.mid" & %command%
-
+4# Paste the following command for example:
+	python3 /usr/local/bin/play_startup_song.py "/usr/local/share/midi/slim_shady.mid" & %command%
 5# copy/save the file to its correct location: /usr/local/bin/play_startup_song.py
 6# make sure the file is executable: sudo chmod +x /usr/local/bin/play_startup_song.py
+
+---
+
+Alternatively: 
+...from step 4#
+	vi /home/deck/.local/bin/haptic_launcher.sh
+
+#paste:
+	#!/bin/bash
+
+	# 1. Play the MIDI file in the background, limiting it to a max of 10 seconds using 'timeout'
+	timeout 10s /home/deck/Music/sounds/steam-haptics-singer1305 /home/deck/Music/sounds/controller_Mortal_Kombat.mid > /dev/null 2>&1 &
+
+	# Store the Process ID of the haptic player so we can kill it manually if needed
+	HAPTIC_PID=$!
+
+	# 2. Launch the actual game via Steam's %command% immediately
+	"$@" &
+
+	# Capture the game's Process ID
+	GAME_PID=$!
+
+	# 3. Optional: If you want a manual kill trigger via a shortcut or key combo, 
+	# you can monitor or let the game finish. When the game exits, ensure the haptic process is dead.
+	wait $GAME_PID
+	kill -9 $HAPTIC_PID 2>/dev/null
+
+#run:
+	chmod +x /home/deck/.local/bin/haptic_launcher.sh
+
+#set launch params:
+	/home/deck/.local/bin/haptic_launcher.sh %command%
+	
