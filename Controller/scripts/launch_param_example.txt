@@ -1,0 +1,10 @@
+Steps:
+1# Open your Steam Library.
+2# Right-click the game/application and select Properties.
+3# Under the General tab, find the Launch Options text box.
+4# Paste the following command:
+
+python3 /usr/local/bin/play_startup_song.py "/usr/local/share/midi/slim_shady.mid" & %command%
+
+5# copy/save the file to its correct location: /usr/local/bin/play_startup_song.py
+6# make sure the file is executable: sudo chmod +x /usr/local/bin/play_startup_song.py
