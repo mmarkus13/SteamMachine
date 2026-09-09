@@ -39,10 +39,15 @@ To play a custom haptic track seamlessly on launch, use the background wrapper s
 ```bash
 /home/deck/.local/bin/haptic_launcher.sh %command%
 ```
+or you can also set different song via `--s` parameter:
+```bash
+/home/deck/.local/bin/haptic_launcher.sh --s slim_shady.mid %command%
+```
+
 ---
 #note:
 ```
-The haptic_launcher.sh is set to play only the first 10 seconds of your pre-selected midi file - feel free to change that.
+The haptic_launcher.sh is set to play only the first 10 seconds of your midi file - feel free to change that.
 To immediately cancel sounds hit 'Steam + B' buttons on your controller - which also closes the game.
 ```
 ---
