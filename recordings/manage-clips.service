@@ -1,0 +1,6 @@
+[Unit]
+Description=Weekly Steam Clips Maintenance Worker
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash %h/.local/share/Steam/manage_clips.sh

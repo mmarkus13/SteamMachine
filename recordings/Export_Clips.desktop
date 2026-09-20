@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Export Steam Clips
+Comment=Export pending Steam clips to MP4 and clean up old recordings
+Exec=/home/deck/.local/share/Steam/manage_clips.sh
+Icon=video-x-generic
+Terminal=false
+Categories=Utility;AudioVideo;
