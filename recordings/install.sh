@@ -3,7 +3,7 @@
 
 set -e
 
-REPO_RAW_URL="https://raw.githubusercontent.com/mmarkus13/SteamMachine/tree/main/recordings/install.sh"
+REPO_RAW_URL="https://raw.githubusercontent.com/mmarkus13/SteamMachine/refs/heads/main/recordings/install.sh"
 
 VIDEOS_DIR="$HOME/Videos"
 STEAM_DIR="$HOME/.local/share/Steam"
